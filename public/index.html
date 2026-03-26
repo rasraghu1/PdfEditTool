@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Text Editor</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="hero">
+        <p class="eyebrow">Local PDF Editing Tool</p>
+        <h1>Edit PDF text in place</h1>
+        <p class="lede">
+          Upload a text-based PDF, inspect extracted text, change the values you need,
+          and download the updated file from the browser.
+        </p>
+      </section>
+
+      <section class="panel upload-panel">
+        <form id="upload-form">
+          <label class="upload-box" for="pdf-file">
+            <span>Select a PDF</span>
+            <input id="pdf-file" name="pdf" type="file" accept="application/pdf" required />
+          </label>
+          <button id="upload-button" type="submit">Extract Text</button>
+        </form>
+        <p id="status" class="status">Waiting for a PDF upload.</p>
+        <div class="limits">
+          <strong>Important:</strong>
+          <span>
+            This tool is for normal text-based PDFs. Scanned image PDFs are not supported in this simplified version.
+          </span>
+        </div>
+      </section>
+
+      <section class="workspace hidden" id="workspace">
+        <div class="panel sidebar">
+          <div class="toolbar">
+            <input id="search-input" type="search" placeholder="Search extracted text" />
+            <span id="span-counter">0 spans</span>
+          </div>
+          <div id="span-list" class="span-list"></div>
+        </div>
+
+        <div class="panel editor-panel">
+          <div id="empty-state" class="empty-state">
+            Select an extracted text span to edit it.
+          </div>
+
+          <div id="editor" class="editor hidden">
+            <div class="meta" id="selection-meta"></div>
+
+            <label for="original-text">Original text</label>
+            <textarea id="original-text" readonly></textarea>
+
+            <label for="new-text">Replacement text</label>
+            <textarea id="new-text"></textarea>
+
+            <div class="tuning-panel">
+              <div class="tuning-head">
+                <strong>Font Tuning</strong>
+                <span>Use these controls when auto matching is not exact.</span>
+              </div>
+
+              <div class="tuning-grid">
+                <label>
+                  <span>Font family</span>
+                  <select id="font-family-override">
+                    <option value="auto">Auto detect</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Segoe UI">Segoe UI</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Cambria">Cambria</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span>Font style</span>
+                  <select id="font-style-override">
+                    <option value="auto">Auto detect</option>
+                    <option value="regular">Regular</option>
+                    <option value="bold">Bold</option>
+                    <option value="italic">Italic</option>
+                    <option value="boldItalic">Bold Italic</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span>Size %</span>
+                  <input id="font-size-scale" type="number" min="50" max="180" step="1" value="100" />
+                </label>
+
+                <label>
+                  <span>Vertical offset</span>
+                  <input id="y-offset" type="number" min="-20" max="20" step="0.5" value="0" />
+                </label>
+
+                <label>
+                  <span>Ink %</span>
+                  <input id="ink-strength" type="number" min="80" max="180" step="1" value="112" />
+                </label>
+
+                <label class="checkbox-field">
+                  <input id="preserve-size" type="checkbox" checked />
+                  <span>Keep original point size</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="actions-row">
+              <button id="queue-edit" type="button">Queue This Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel changes-panel">
+          <div class="changes-header">
+            <h2>Queued Changes</h2>
+            <div class="changes-actions">
+              <label class="checkbox-field compact-checkbox">
+                <input id="flatten-output" type="checkbox" checked />
+                <span>Flatten final PDF</span>
+              </label>
+              <button id="build-pdf" type="button">Build Updated PDF</button>
+            </div>
+          </div>
+          <div id="changes-list" class="changes-list"></div>
+          <div id="warnings" class="warnings"></div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+  </html>
