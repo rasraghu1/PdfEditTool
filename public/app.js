@@ -1,5 +1,12 @@
+import {
+  applyTextReplacements,
+  extractTextSpans,
+  getPdfJs,
+  getPdfLib
+} from "./pdfEditorBrowser.js";
+
 const state = {
-  sessionId: null,
+  originalPdfBytes: null,
   fileName: null,
   spans: [],
   filteredSpans: [],
@@ -31,9 +38,6 @@ const buildPdfButton = document.getElementById("build-pdf");
 const flattenOutputEl = document.getElementById("flatten-output");
 const warningsEl = document.getElementById("warnings");
 
-let pdfJsModulePromise;
-let pdfLibModulePromise;
-
 uploadForm.addEventListener("submit", handleUpload);
 searchInputEl.addEventListener("input", renderSpanList);
 queueEditButton.addEventListener("click", queueSelectedEdit);
@@ -52,12 +56,13 @@ async function handleUpload(event) {
   changesListEl.innerHTML = "";
 
   try {
-    setStatus("Uploading PDF and extracting text...");
-    const response = await fetchUpload(file);
+    setStatus("Reading PDF in the browser and extracting text...");
+    const pdfBytes = new Uint8Array(await file.arrayBuffer());
+    const spans = await extractTextSpans(pdfBytes);
 
-    state.sessionId = response.sessionId;
-    state.fileName = response.fileName;
-    state.spans = response.spans;
+    state.originalPdfBytes = pdfBytes;
+    state.fileName = file.name;
+    state.spans = spans;
     state.replacements = new Map();
     state.selectedSpanId = null;
 
@@ -66,32 +71,15 @@ async function handleUpload(event) {
     renderSpanList();
     renderChanges();
 
-    if (!response.spanCount) {
+    if (!spans.length) {
       setStatus("No editable text spans were found. This simplified tool only supports normal text PDFs.", true);
       return;
     }
 
-    setStatus(`Extracted ${response.spanCount} editable text spans from ${response.fileName}.`);
+    setStatus(`Extracted ${spans.length} editable text spans from ${file.name}.`);
   } catch (error) {
     setStatus(error.message || "Could not process the PDF.", true);
   }
-}
-
-async function fetchUpload(file) {
-  const formData = new FormData();
-  formData.append("pdf", file);
-
-  const response = await fetch("/api/extract", {
-    method: "POST",
-    body: formData
-  });
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Upload failed.");
-  }
-
-  return data;
 }
 
 function renderSpanList() {
@@ -207,7 +195,7 @@ function renderChanges() {
 async function buildUpdatedPdf() {
   persistCurrentSelection();
 
-  if (!state.sessionId) {
+  if (!state.originalPdfBytes) {
     setStatus("Upload a PDF first.", true);
     return;
   }
@@ -221,25 +209,14 @@ async function buildUpdatedPdf() {
   warningsEl.innerHTML = "";
 
   try {
-    const response = await fetch("/api/apply", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        sessionId: state.sessionId,
-        replacements: Array.from(state.replacements.values())
-      })
-    });
+    const result = await applyTextReplacements(
+      state.originalPdfBytes,
+      state.spans,
+      Array.from(state.replacements.values())
+    );
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "Failed to build PDF." }));
-      throw new Error(error.error || "Failed to build PDF.");
-    }
-
-    const blob = await response.blob();
-    const warningsHeader = response.headers.get("X-Pdf-Warnings");
-    const warnings = warningsHeader ? JSON.parse(decodeURIComponent(warningsHeader)) : [];
+    const blob = new Blob([result.pdfBytes], { type: "application/pdf" });
+    const warnings = [...result.warnings];
     let finalBlob = blob;
 
     if (flattenOutputEl.checked) {
@@ -320,25 +297,6 @@ async function flattenPdfBlob(sourceBlob) {
   });
 
   return new Blob([flattenedBytes], { type: "application/pdf" });
-}
-
-async function getPdfJs() {
-  if (!pdfJsModulePromise) {
-    pdfJsModulePromise = import("/vendor/pdfjs-dist/build/pdf.mjs").then((module) => {
-      module.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs-dist/build/pdf.worker.mjs";
-      return module;
-    });
-  }
-
-  return pdfJsModulePromise;
-}
-
-async function getPdfLib() {
-  if (!pdfLibModulePromise) {
-    pdfLibModulePromise = import("/vendor/pdf-lib/pdf-lib.esm.min.js");
-  }
-
-  return pdfLibModulePromise;
 }
 
 function renderWarnings(warnings) {

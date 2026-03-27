@@ -1,6 +1,14 @@
 # PDF Text Editor
 
-This is a JavaScript web tool that lets you upload a normal text-based PDF, inspect the extracted text spans, change the text you need, and download an updated PDF.
+This is a JavaScript PDF editing tool that now runs fully in the browser. You can host it for free on GitHub Pages and open it from a single link.
+
+## Live app
+
+After the `Deploy GitHub Pages` workflow finishes, the app will be available at:
+
+```text
+https://rasraghu1.github.io/PdfEditTool/
+```
 
 ## What the tool does
 
@@ -8,6 +16,7 @@ This is a JavaScript web tool that lets you upload a normal text-based PDF, insp
 - Extracts text spans from each page.
 - Lets you search the extracted text and pick the exact span to edit.
 - Rebuilds the PDF with your replacement text placed over the original text area.
+- Runs entirely in the browser, so no local server is required for the hosted version.
 
 ## Important limitations
 
@@ -19,10 +28,24 @@ This is a JavaScript web tool that lets you upload a normal text-based PDF, insp
 
 ## Tech stack
 
-- Node.js
-- Express
+- Browser-side JavaScript
 - PDF.js for text extraction
 - pdf-lib for rebuilding the PDF
+- GitHub Pages for free hosting
+
+## Free one-click GitHub hosting
+
+This repository includes a GitHub Actions workflow at [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml) that publishes the contents of [public/index.html](public/index.html) to GitHub Pages.
+
+To enable it in GitHub:
+
+1. Open the repository Settings page.
+2. Open Pages.
+3. Under Build and deployment, choose GitHub Actions.
+4. Push to `main`.
+5. Wait for the `Deploy GitHub Pages` workflow to finish.
+
+After that, opening the GitHub Pages URL is the one-click way to use the app.
 
 ## Run locally
 
@@ -44,6 +67,8 @@ npm start
 http://localhost:3000
 ```
 
+Local Node usage is still supported, but it is no longer required for the hosted GitHub Pages version.
+
 ## One-click start on Windows
 
 If you do not want to open VS Code or run terminal commands manually:
@@ -57,6 +82,12 @@ Notes:
 - The first run may take longer because it installs `node_modules`
 - You still need Node.js installed on the machine
 - A terminal window may stay open while the server is running when using the `.cmd` launcher
+
+## Hosted mode limitations
+
+- The GitHub Pages version has no backend, so all processing happens in your browser tab.
+- Font matching is based on standard PDF fonts in hosted mode, so some edited text may look slightly different from the original.
+- Large PDFs may use more browser memory than the local server version.
 
 ## Project files
 

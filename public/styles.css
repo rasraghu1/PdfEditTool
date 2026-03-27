@@ -94,12 +94,14 @@ button {
   font: inherit;
 }
 
+input[type="search"],
+input[type="number"],
 select,
-input[type="number"] {
+textarea {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px 12px;
+  border-radius: 16px;
+  padding: 12px 14px;
   background: var(--panel-strong);
   color: var(--text);
 }
@@ -150,30 +152,8 @@ button:hover {
 
 .toolbar {
   display: grid;
-.changes-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
   gap: 10px;
   margin-bottom: 14px;
-}
-
-input[type="search"],
-textarea {
-.compact-checkbox {
-  padding-top: 0;
-}
-.compact-checkbox span {
-  color: var(--muted);
-  font-size: 0.92rem;
-}
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px 14px;
-  background: var(--panel-strong);
-  color: var(--text);
 }
 
 .span-list,
@@ -235,8 +215,17 @@ textarea {
   gap: 4px;
 }
 
-.tuning-head span {
+.tuning-head span,
+.tuning-grid span,
+.meta,
+.compact-checkbox span,
+.change-card p {
   color: var(--muted);
+}
+
+.tuning-head span,
+.tuning-grid span,
+.compact-checkbox span {
   font-size: 0.9rem;
 }
 
@@ -244,10 +233,6 @@ textarea {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-}
-.changes-actions {
-  flex-direction: column;
-  align-items: stretch;
 }
 
 .tuning-grid label {
@@ -269,16 +254,6 @@ textarea {
 
 .checkbox-field span {
   color: var(--text);
-}
-
-.tuning-grid span {
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.meta {
-  color: var(--muted);
-  font-size: 0.95rem;
 }
 
 textarea {
@@ -304,6 +279,16 @@ textarea {
   font-size: 1.1rem;
 }
 
+.changes-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compact-checkbox {
+  padding-top: 0;
+}
+
 .change-card {
   padding: 14px;
   border-radius: 18px;
@@ -326,7 +311,6 @@ textarea {
 
 .change-card p {
   margin: 8px 0 0;
-  color: var(--muted);
 }
 
 .change-card span {
@@ -365,6 +349,12 @@ textarea {
   .editor-panel,
   .changes-panel {
     min-height: auto;
+  }
+
+  .changes-header,
+  .changes-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .tuning-grid {
